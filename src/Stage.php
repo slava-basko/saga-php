@@ -2,11 +2,11 @@
 
 namespace Basko\Saga;
 
-interface StageInterface
+abstract class Stage implements StageInterface
 {
     /**
      * @param mixed $payload
      * @return mixed
      */
-    public function execute($payload);
+    abstract protected function rollback($payload);
 }

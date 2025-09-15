@@ -6,19 +6,18 @@ class RollbackException extends \Exception
 {
     private $payload;
 
-    /**
-     * @param $payload
-     * @param \Exception $originalException
-     * @return \Basko\Saga\RollbackException
-     */
-    public static function create($payload, \Exception $originalException)
+    private $rollbackExceptions = [];
+
+    public static function create($payload, \Exception $stageException, array $rollbackExceptions = [])
     {
         $exception = new RollbackException(
             'Rollback completed',
-            $originalException->getCode(),
-            $originalException
+            $stageException->getCode(),
+            $stageException
         );
+
         $exception->payload = $payload;
+        $exception->rollbackExceptions = $rollbackExceptions;
 
         return $exception;
     }
@@ -29,5 +28,13 @@ class RollbackException extends \Exception
     public function getPayload()
     {
         return $this->payload;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRollbackExceptions()
+    {
+        return $this->rollbackExceptions;
     }
 }
