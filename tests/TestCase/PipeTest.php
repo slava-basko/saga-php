@@ -3,7 +3,7 @@
 namespace Basko\Saga\TestCase;
 
 use Basko\Saga\Pipeline;
-use Basko\Saga\RollbackException;
+use Basko\Saga\Exception;
 use Basko\Saga\Stage\StageN;
 use Basko\Saga\Value\Trace;
 use PHPUnit\Framework\TestCase;
@@ -32,7 +32,7 @@ class PipeTest extends TestCase
 
             $pipe->execute(1);
         } catch (\Exception $e) {
-            $this->assertEquals('Rollback completed', $e->getMessage());
+            $this->assertEquals('Pipeline exception', $e->getMessage());
             $this->assertEquals('Execute error on stage 3', $e->getPrevious()->getMessage());
         }
     }
@@ -49,7 +49,7 @@ class PipeTest extends TestCase
 
             $pipe->execute($trace);
         } catch (\Exception $e) {
-            $this->assertEquals('Rollback completed', $e->getMessage());
+            $this->assertEquals('Pipeline exception', $e->getMessage());
             $this->assertEquals('Execute error on stage 3', $e->getPrevious()->getMessage());
             $this->assertEquals(1, $trace->getValue());
             $this->assertEquals([
@@ -88,8 +88,8 @@ class PipeTest extends TestCase
             $pipe2->addStage(new StageN(3, true));
 
             $pipe2->execute(1);
-        } catch (RollbackException $e) {
-            $this->assertEquals('Rollback completed', $e->getMessage());
+        } catch (Exception $e) {
+            $this->assertEquals('Pipeline exception', $e->getMessage());
             $this->assertEquals('Execute error on stage 3', $e->getPrevious()->getMessage());
             $this->assertEquals(1, $e->getPayload());
         }
@@ -102,8 +102,8 @@ class PipeTest extends TestCase
 
         try {
             $pipe->execute(7);
-        } catch (RollbackException $e) {
-            $this->assertEquals('Rollback completed', $e->getMessage());
+        } catch (Exception $e) {
+            $this->assertEquals('Pipeline exception', $e->getMessage());
             $this->assertEquals(7, $e->getPayload());
         }
     }
@@ -117,8 +117,8 @@ class PipeTest extends TestCase
 
         try {
             $pipe->execute(7);
-        } catch (RollbackException $e) {
-            $this->assertEquals('Rollback completed', $e->getMessage());
+        } catch (Exception $e) {
+            $this->assertEquals('Pipeline exception', $e->getMessage());
             $this->assertEquals(7, $e->getPayload());
 
             $rollbackExceptions = $e->getRollbackExceptions();
@@ -137,8 +137,8 @@ class PipeTest extends TestCase
 
         try {
             $pipe->execute(7);
-        } catch (RollbackException $e) {
-            $this->assertEquals('Rollback completed', $e->getMessage());
+        } catch (Exception $e) {
+            $this->assertEquals('Pipeline exception', $e->getMessage());
             $this->assertEquals(10, $e->getPayload());
 
             $rollbackExceptions = $e->getRollbackExceptions();

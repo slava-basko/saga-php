@@ -2,16 +2,22 @@
 
 namespace Basko\Saga;
 
-class RollbackException extends \Exception
+class Exception extends \Exception
 {
+    /**
+     * @var mixed
+     */
     private $payload;
 
+    /**
+     * @var array<\Exception>
+     */
     private $rollbackExceptions = [];
 
     public static function create($payload, \Exception $stageException, array $rollbackExceptions = [])
     {
-        $exception = new RollbackException(
-            'Rollback completed',
+        $exception = new Exception(
+            'Pipeline exception',
             $stageException->getCode(),
             $stageException
         );

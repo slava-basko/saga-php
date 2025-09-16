@@ -2,10 +2,10 @@
 
 namespace Basko\Saga\Stage;
 
-use Basko\Saga\Stage;
+use Basko\Saga\StageInterface;
 use Basko\Saga\Value\Trace;
 
-class StageN extends Stage
+class StageN implements StageInterface
 {
     private $n;
     private $exceptionOnExecute;
@@ -30,7 +30,7 @@ class StageN extends Stage
         return $payload + $this->n;
     }
 
-    protected function rollback($payload)
+    public function rollback($payload)
     {
         if ($this->exceptionOnRollback) {
             throw new \Exception("Rollback error on stage {$this->n}");

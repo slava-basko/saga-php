@@ -2,15 +2,15 @@
 
 namespace Basko\Saga;
 
-class Pipeline extends Stage
+class Pipeline implements StageInterface
 {
     /**
-     * @var array<\Basko\Saga\Stage>
+     * @var array<\Basko\Saga\StageInterface>
      */
     private $stages = [];
 
     /**
-     * @var array<\Basko\Saga\Stage>
+     * @var array<\Basko\Saga\StageInterface>
      */
     private $stack = [];
 
@@ -34,6 +34,9 @@ class Pipeline extends Stage
      */
     private $executionDepth = 0;
 
+    /**
+     * @return void
+     */
     private function cleanup()
     {
         foreach ($this->stages as $stage) {
@@ -47,10 +50,9 @@ class Pipeline extends Stage
     }
 
     /**
-     * @param mixed $payload
-     * @return mixed
+     * @inheritDoc
      */
-    protected function rollback($payload)
+    public function rollback($payload)
     {
         while ($stage = \array_pop($this->stack)) {
             if ($this->continueRollbackOnException) {
@@ -69,6 +71,10 @@ class Pipeline extends Stage
         return $payload;
     }
 
+    /**
+     * @inheritDoc
+     * @throws \Basko\Saga\Exception
+     */
     public function execute($payload)
     {
         $this->executionDepth++;
@@ -92,42 +98,50 @@ class Pipeline extends Stage
                     }
                 } catch (\Exception $stageException) {
                     $payload = $this->rollback($payload);
-                    throw RollbackException::create($payload, $stageException, $this->rollbackExceptions);
+                    throw Exception::create($payload, $stageException, $this->rollbackExceptions);
                 }
-            }
-
-            if ($isRootExecution) {
-                $this->cleanup();
             }
 
             return $payload;
         } finally {
+            if ($isRootExecution) {
+                $this->cleanup();
+            }
+
             $this->executionDepth--;
         }
     }
 
     /**
-     * @param \Basko\Saga\Stage $stage
+     * @param \Basko\Saga\StageInterface $stage
      * @return void
      */
-    public function addStage(Stage $stage)
+    public function addStage(StageInterface $stage)
     {
         $this->stages[] = $stage;
     }
 
     /**
+     * Execute: A -> B -> C
+     * Rollback: C -> B -> A
+     * Do we need to run A::rollback() in case of Exception in B::rollback()?
+     *
      * @param bool $continueRollbackOnException
      */
     public function continueRollbackOnException($continueRollbackOnException)
     {
-        $this->continueRollbackOnException = $continueRollbackOnException;
+        $this->continueRollbackOnException = (bool)$continueRollbackOnException;
     }
 
     /**
+     * Execute: A -> B -> C
+     * Rollback C -> B -> A
+     * Do we need to run B::rollback() in case of Exception in B::execute()?
+     *
      * @param bool $rollbackFailedStage
      */
     public function rollbackFailedStage($rollbackFailedStage)
     {
-        $this->rollbackFailedStage = $rollbackFailedStage;
+        $this->rollbackFailedStage = (bool)$rollbackFailedStage;
     }
 }
