@@ -50,7 +50,7 @@ class Pipeline implements StageInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function rollback($payload)
     {
@@ -72,8 +72,7 @@ class Pipeline implements StageInterface
     }
 
     /**
-     * @inheritDoc
-     * @throws \Basko\Saga\Exception
+     * @inheritdoc
      */
     public function execute($payload)
     {
@@ -122,9 +121,9 @@ class Pipeline implements StageInterface
     }
 
     /**
+     * Do we need to run A::rollback() in case of Exception in B::rollback()?
      * Execute: A -> B -> C
      * Rollback: C -> B -> A
-     * Do we need to run A::rollback() in case of Exception in B::rollback()?
      *
      * @param bool $continueRollbackOnException
      */
@@ -134,9 +133,9 @@ class Pipeline implements StageInterface
     }
 
     /**
+     * Do we need to run B::rollback() in case of Exception in B::execute()?
      * Execute: A -> B -> C
      * Rollback C -> B -> A
-     * Do we need to run B::rollback() in case of Exception in B::execute()?
      *
      * @param bool $rollbackFailedStage
      */

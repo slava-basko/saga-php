@@ -7,6 +7,7 @@ interface StageInterface
     /**
      * @param mixed $payload
      * @return mixed
+     * @throws \Basko\Saga\Exception
      */
     public function execute($payload);
 
@@ -16,6 +17,7 @@ interface StageInterface
      *
      * @param mixed $payload
      * @return mixed
+     * @throws \Exception
      */
     public function rollback($payload);
 }
